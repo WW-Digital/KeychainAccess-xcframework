@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name             = 'KeychainAccess'
-  s.version          = '4.2.1'
+  s.version          = '4.2.2'
   s.summary          = 'KeychainAccess is a simple Swift wrapper for Keychain that works on iOS and OS X.'
   s.description      = <<-DESC
                          KeychainAccess is a simple Swift wrapper for Keychain that works on iOS and OS X.
@@ -28,7 +28,7 @@ Pod::Spec.new do |s|
 
   s.swift_version = '5.1'
 
-  s.ios.deployment_target = '8.0'
+  s.ios.deployment_target = '9.0'
   s.osx.deployment_target = '10.9'
   s.watchos.deployment_target = '3.0'
   s.tvos.deployment_target = '9.0'

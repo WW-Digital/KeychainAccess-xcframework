@@ -3,7 +3,7 @@ Pod::Spec.new do |s|
   s.name                = 'KeychainAccess-xcframework'
   
   s.module_name         = 'KeychainAccess'
-  s.version             = '4.2.1'
+  s.version             = '4.2.2'
 
   s.summary             = 'KeychainAccess is a simple Swift wrapper for Keychain that works on iOS and OS X.'
   s.description         = <<-DESC
