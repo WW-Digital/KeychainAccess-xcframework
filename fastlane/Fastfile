@@ -124,7 +124,7 @@ platform :ios do
     pull_request(
       launch_url: 'true',
       base: 'main',
-      title: "Update #{source_pod_name} to version #{latest_version}",
+      message: "Update #{source_pod_name} to version #{latest_version}",
       body: "Update #{source_pod_name} to version #{latest_version}"
     )
 
