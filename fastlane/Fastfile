@@ -31,9 +31,9 @@ platform :ios do
     #   UI.success "No update needed"
     #   next
     # end
-      unless UI.confirm("Update version of #{source_pod_name} from '#{spec_version}' to '#{latest_version}'?")
-        UI.abort_with_message! "Canceling integration build"
-      end
+    unless UI.confirm("Update version of #{source_pod_name} from '#{spec_version}' to '#{latest_version}'?")
+      UI.abort_with_message! "Canceling build"
+    end
 
     repo_name = current_repo_name
     ensure_git_status_clean(show_uncommitted_changes: true)
@@ -88,20 +88,24 @@ platform :ios do
     )
 
     version_bump_podspec(version_number: latest_version)
-      release_branch = "release/#{latest_version}"
-      
-      # Cut release branch
-      sh("git checkout -b #{release_branch}")
-      ensure_git_branch(branch: release_branch)
+    release_branch = "release/#{latest_version}"
+    
+    unless UI.confirm("Shall I continue by pushing all changes to WW-Digital/#{repo_name}?")
+      UI.abort_with_message! "Canceling build"
+    end
 
-      # commit all changes
-      sh("git add -A && git commit -m 'Update to version #{latest_version}'")
+    # Cut release branch
+    sh("git checkout -b #{release_branch}")
+    ensure_git_branch(branch: release_branch)
 
-      # create a tag
-      sh("git tag -a #{latest_version} -m 'Add tag for #{latest_version}'")
+    # commit all changes
+    sh("git add -A && git commit -m 'Update to version #{latest_version}'")
 
-      # push everything up to origin
-      push_to_git_remote(
+    # create a tag
+    sh("git tag -a #{latest_version} -m 'Add tag for #{latest_version}'")
+
+    # push everything up to origin
+    push_to_git_remote(
       local_branch: release_branch,
       remote_branch: release_branch,
       tags: true
@@ -109,14 +113,17 @@ platform :ios do
 
       # create a release to attach the binary
     set_github_release(
-      #repository_name: "WW-Digital/#{repo_name}",
-      repository_name: "g-mark/#{repo_name}",
+      repository_name: "WW-Digital/#{repo_name}",
       api_token: ENV["GITHUB_API_TOKEN"],
       name: "Release #{latest_version}",
       tag_name: "#{latest_version}",
       description: "Updates #{source_pod_name} xcframework to version #{latest_version}.",
       upload_assets: ["#{root_path}/archives/#{xcframework_name}.zip"]
     )
+
+    unless UI.confirm("Shall I continue by publixhing the private cocoapod #{spec_name}?")
+      UI.abort_with_message! "Canceling build"
+    end
 
     # publish the pod
     pod_push(
