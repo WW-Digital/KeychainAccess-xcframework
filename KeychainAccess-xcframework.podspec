@@ -13,7 +13,7 @@ Pod::Spec.new do |s|
   s.license             = 'MIT'
   s.author              = { 'kishikawa katsumi' => 'kishikawakatsumi@mac.com' }
 
-  s.source              = { :git => 'git@github.com:WW-Digital/KeychainAccess-xcframework.git', :tag => "#{s.version}" }
+  s.source              = { :git => 'git@github.com:WW-Digital/ios-KeychainAccess.git', :tag => "#{s.version}" }
 
   s.requires_arc        = true
   
