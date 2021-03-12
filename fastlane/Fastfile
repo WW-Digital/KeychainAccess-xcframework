@@ -14,7 +14,7 @@ platform :ios do
     # TODO: move this to a separate file?
     source_pod_name = "KeychainAccess"
     source_git_source = 'https://github.com/kishikawakatsumi/KeychainAccess.git'
-    source_git_tag = "v#{latest_version}"
+    source_git_tag_format = 'v{latest_version}'
     project_file = 'Lib/KeychainAccess.xcodeproj'
     project_scheme = 'KeychainAccess'
     #--
@@ -46,6 +46,7 @@ platform :ios do
     sh("rm -rf #{root_path}/#{module_name}")
 
     # clone the latest version
+    source_git_tag = source_git_tag_format.sub('{latest_version}', latest_version)
     sh("git clone --depth 1 --branch #{source_git_tag} #{source_git_source} #{root_path}/#{module_name}")
 
     # remove gif files
