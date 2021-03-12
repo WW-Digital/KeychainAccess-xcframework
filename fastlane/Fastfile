@@ -10,42 +10,43 @@ platform :ios do
 
   lane :update_framework do |options|
 
+    #-- config
+    # TODO: move this to a separate file?
+    source_pod_name = "KeychainAccess"
+    source_git_source = 'https://github.com/kishikawakatsumi/KeychainAccess.git'
+    source_git_tag = "v#{latest_version}"
+    project_file = 'Lib/KeychainAccess.xcodeproj'
+    project_scheme = 'KeychainAccess'
+    #--
+
     podspec = read_podspec
     spec_version = podspec["version"]
     spec_name = podspec["name"]
 
     # TODO: get version from options, otherwise get it from cocoapods
-    pod_query = `pod trunk info #{spec_name}`
+    pod_query = `pod trunk info #{source_pod_name}`
     latest_version = pod_query.scan(/- ([0-9]+\.[0-9]+\.[0-9]+) \(.+ UTC\)/).last.first
 
     # if latest_version == spec_version
     #   UI.success "No update needed"
     #   next
     # end
-      unless UI.confirm("Update version of #{spec_name} from '#{spec_version}' to '#{latest_version}'?")
+      unless UI.confirm("Update version of #{source_pod_name} from '#{spec_version}' to '#{latest_version}'?")
         UI.abort_with_message! "Canceling integration build"
       end
 
     repo_name = current_repo_name
     ensure_git_status_clean(show_uncommitted_changes: true)
 
-    module_name = podspec["module_name"] || spec_name
+    module_name = podspec["module_name"] || source_pod_name
     xcframework_name = podspec["vendored_frameworks"]
     root_path = File.expand_path('../')
 
     # remove current repo directory
     sh("rm -rf #{root_path}/#{module_name}")
 
-    #-- config
-    # TODO: move this to a separate file?
-    git_source = 'https://github.com/kishikawakatsumi/KeychainAccess.git'
-    git_tag = "v#{latest_version}"
-    project_file = 'Lib/KeychainAccess.xcodeproj'
-    project_scheme = 'KeychainAccess'
-    #--
-
     # clone the latest version
-    sh("git clone --depth 1 --branch #{git_tag} #{git_source} #{root_path}/#{module_name}")
+    sh("git clone --depth 1 --branch #{source_git_tag} #{source_git_source} #{root_path}/#{module_name}")
 
     # remove gif files
     sh("rm -rf #{root_path}/#{module_name}/.git*")
@@ -112,7 +113,7 @@ platform :ios do
       api_token: ENV["GITHUB_API_TOKEN"],
       name: "Release #{latest_version}",
       tag_name: "#{latest_version}",
-      description: "Updates #{spec_name} xcframework to version #{latest_version}.",
+      description: "Updates #{source_pod_name} xcframework to version #{latest_version}.",
       upload_assets: ["#{root_path}/archives/#{xcframework_name}.zip"]
     )
 
