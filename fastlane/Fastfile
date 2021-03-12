@@ -1,0 +1,128 @@
+
+import_from_git(
+  url: 'git@github.com:WW-Digital/mobile-fastlane.git',
+  path: 'fastlane/MobileFastfile'
+)
+
+default_platform :ios
+
+platform :ios do
+
+  lane :update_framework do |options|
+
+    podspec = read_podspec
+    spec_version = podspec["version"]
+    spec_name = podspec["name"]
+
+    # TODO: get version from options, otherwise get it from cocoapods
+    pod_query = `pod trunk info #{spec_name}`
+    latest_version = pod_query.scan(/- ([0-9]+\.[0-9]+\.[0-9]+) \(.+ UTC\)/).last.first
+
+    # if latest_version == spec_version
+    #   UI.success "No update needed"
+    #   next
+    # end
+      unless UI.confirm("Update version of #{spec_name} from '#{spec_version}' to '#{latest_version}'?")
+        UI.abort_with_message! "Canceling integration build"
+      end
+
+    repo_name = current_repo_name
+    ensure_git_status_clean(show_uncommitted_changes: true)
+
+    module_name = podspec["module_name"] || spec_name
+    xcframework_name = podspec["vendored_frameworks"]
+    root_path = File.expand_path('../')
+
+    # remove current repo directory
+    sh("rm -rf #{root_path}/#{module_name}")
+
+    #-- config
+    # TODO: move this to a separate file?
+    git_source = 'https://github.com/kishikawakatsumi/KeychainAccess.git'
+    git_tag = "v#{latest_version}"
+    project_file = 'Lib/KeychainAccess.xcodeproj'
+    project_scheme = 'KeychainAccess'
+    #--
+
+    # clone the latest version
+    sh("git clone --depth 1 --branch #{git_tag} #{git_source} #{root_path}/#{module_name}")
+
+    # remove gif files
+    sh("rm -rf #{root_path}/#{module_name}/.git*")
+
+    xcframework_command = 'xcodebuild -create-xcframework'
+    platforms = ['iOS', 'iOS Simulator', 'watchOS', 'watchOS Simulator', 'OS X']
+
+    # create archives
+    platforms.each { |platform|
+      UI.message "Archiving for #{platform}..."
+      out = `xcodebuild archive \
+              -project #{root_path}/#{module_name}/#{project_file} \
+              -scheme '#{project_scheme}' \
+              -configuration Release \
+              -destination 'generic/platform=#{platform}' \
+              -archivePath '#{root_path}/archives/#{module_name}-#{platform.tr(' ', '')}' \
+              SKIP_INSTALL=NO \
+              BUILD_LIBRARY_FOR_DISTRIBUTION=YES`
+      unless out.include? '** ARCHIVE SUCCEEDED **'
+        UI.error out
+        UI.abort_with_message "** ARCHIVE FAILED **"
+      end
+      xcframework_command += " -framework #{root_path}/archives/#{module_name}-#{platform.tr(' ', '')}.xcarchive/Products/Library/Frameworks/#{module_name}.framework"
+    }
+
+    xcframework_command += " -output #{root_path}/#{xcframework_name}"
+
+    # delete old xcframework
+    sh("rm -rf #{root_path}/#{xcframework_name}")
+
+    UI.message "Creating #{xcframework_name}..."
+    sh(xcframework_command)
+
+    # create a zip of the xcframework to attach to the release
+    zip(
+      path: "#{root_path}/#{xcframework_name}",
+      output_path: "#{root_path}/archives/#{xcframework_name}.zip"
+    )
+
+    version_bump_podspec(version_number: latest_version)
+      release_branch = "release/#{latest_version}"
+      
+      # Cut release branch
+      sh("git checkout -b #{release_branch}")
+      ensure_git_branch(branch: release_branch)
+
+      # commit all changes
+      sh("git add -A && git commit -m 'Update to version #{latest_version}'")
+
+      # create a tag
+      sh("git tag -a #{latest_version} -m 'Add tag for #{latest_version}'")
+
+      # push everything up to origin
+      push_to_git_remote(
+      local_branch: release_branch,
+      remote_branch: release_branch,
+      tags: true
+    )
+
+      # create a release to attach the binary
+    set_github_release(
+      #repository_name: "WW-Digital/#{repo_name}",
+      repository_name: "g-mark/#{repo_name}",
+      api_token: ENV["GITHUB_API_TOKEN"],
+      name: "Release #{latest_version}",
+      tag_name: "#{latest_version}",
+      description: "Updates #{spec_name} xcframework to version #{latest_version}.",
+      upload_assets: ["#{root_path}/archives/#{xcframework_name}.zip"]
+    )
+
+    # publish the pod
+    pod_push(
+      path: "#{spec_name}.podspec",
+      repo: 'ww-digital',
+      allow_warnings: true,
+      verbose: true
+    )
+  end
+
+end
