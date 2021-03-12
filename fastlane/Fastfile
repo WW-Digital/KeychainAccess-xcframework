@@ -53,6 +53,8 @@ platform :ios do
     sh("rm -rf #{root_path}/#{module_name}/.git*")
 
     xcframework_command = 'xcodebuild -create-xcframework'
+
+    # TODO: pull the platforms from the source podspec
     platforms = ['iOS', 'iOS Simulator', 'watchOS', 'watchOS Simulator', 'OS X']
 
     # create archives
