@@ -14,7 +14,8 @@ platform :ios do
     # TODO: move this to a separate file?
     source_pod_name = "KeychainAccess"
     source_git_source = 'https://github.com/kishikawakatsumi/KeychainAccess.git'
-    source_git_tag_format = 'v{latest_version}'
+    source_git_tag_format = 'v{build_version}'
+    source_podspec_file = 'KeychainAccess.podspec'
     project_file = 'Lib/KeychainAccess.xcodeproj'
     project_scheme = 'KeychainAccess'
     #--
@@ -26,12 +27,13 @@ platform :ios do
     # TODO: get version from options, otherwise get it from cocoapods
     pod_query = `pod trunk info #{source_pod_name}`
     latest_version = pod_query.scan(/- ([0-9]+\.[0-9]+\.[0-9]+) \(.+ UTC\)/).last.first
+    build_version = options[:version] || latest_version
 
     # if latest_version == spec_version
     #   UI.success "No update needed"
     #   next
     # end
-    unless UI.confirm("Update version of #{source_pod_name} from '#{spec_version}' to '#{latest_version}'?")
+    unless UI.confirm("Update version of #{source_pod_name} from '#{spec_version}' to '#{build_version}'?")
       UI.abort_with_message! "Canceling build"
     end
 
@@ -46,16 +48,37 @@ platform :ios do
     sh("rm -rf #{root_path}/#{module_name}")
 
     # clone the latest version
-    source_git_tag = source_git_tag_format.sub('{latest_version}', latest_version)
+    source_git_tag = source_git_tag_format.sub('{build_version}', build_version)
     sh("git clone --depth 1 --branch #{source_git_tag} #{source_git_source} #{root_path}/#{module_name}")
 
     # remove git files
     sh("rm -rf #{root_path}/#{module_name}/.git*")
 
-    xcframework_command = 'xcodebuild -create-xcframework'
+    new_podspec = read_podspec(path: "#{root_path}/#{module_name}/#{source_podspec_file}")
+    new_platforms = new_podspec['platforms']
+    old_platforms = podspec['platforms']
+    unless new_platforms.keys == old_platforms.keys
+      UI.error "Supported platforms differ (old: #{old_platforms.keys}, new: #{new_platforms.keys}"
+      UI.abort_with_message! "Update the root #{spec_name}.podspec to match the new values first"
+    end
 
-    # TODO: pull the platforms from the source podspec
-    platforms = ['iOS', 'iOS Simulator', 'watchOS', 'watchOS Simulator', 'OS X']
+    new_platforms.each { |platform, deployment_version|
+      unless deployment_version == old_platforms[platform]
+        UI.error "Deployment version changed for #{platform} (old: #{old_platforms[platform]}, new: #{deployment_version})"
+        UI.abort_with_message! "Update the root #{spec_name}.podspec to match the new values first"
+      end
+    }
+    platforms = new_platforms.keys.map { |platform|
+      case platform
+      when 'ios' then ['iOS', 'iOS Simulator']
+      when 'watchos' then ['watchOS', 'watchOS Simulator']
+      when 'tvos' then ['tvOS', 'tvOS Simulator']
+      when 'osx' then ['OS X']
+      else []
+      end
+    }.flatten
+
+    xcframework_command = 'xcodebuild -create-xcframework'
 
     # create archives
     platforms.each { |platform|
@@ -89,8 +112,8 @@ platform :ios do
       output_path: "#{root_path}/archives/#{xcframework_name}.zip"
     )
 
-    version_bump_podspec(version_number: latest_version)
-    release_branch = "release/#{latest_version}"
+    version_bump_podspec(version_number: build_version)
+    release_branch = "release/#{build_version}"
     
     unless UI.confirm("Shall I continue by pushing all changes to WW-Digital/#{repo_name}?")
       UI.abort_with_message! "Canceling build"
@@ -101,10 +124,10 @@ platform :ios do
     ensure_git_branch(branch: release_branch)
 
     # commit all changes
-    sh("git add -A && git commit -m 'Update to version #{latest_version}'")
+    sh("git add -A && git commit -m 'Update to version #{build_version}'")
 
     # create a tag
-    sh("git tag -a #{latest_version} -m 'Add tag for #{latest_version}'")
+    sh("git tag -a #{build_version} -m 'Add tag for #{build_version}'")
 
     # push everything up to origin
     push_to_git_remote(
@@ -117,17 +140,17 @@ platform :ios do
     set_github_release(
       repository_name: "WW-Digital/#{repo_name}",
       api_token: ENV["GITHUB_API_TOKEN"],
-      name: "Release #{latest_version}",
-      tag_name: "#{latest_version}",
-      description: "Updates #{source_pod_name} xcframework to version #{latest_version}.",
+      name: "Release #{build_version}",
+      tag_name: "#{build_version}",
+      description: "Updates #{source_pod_name} xcframework to version #{build_version}.",
       upload_assets: ["#{root_path}/archives/#{xcframework_name}.zip"]
     )
 
     pull_request(
       launch_url: 'true',
       base: 'main',
-      message: "Update #{source_pod_name} to version #{latest_version}",
-      body: "Update #{source_pod_name} to version #{latest_version}"
+      message: "Update #{source_pod_name} to version #{build_version}",
+      body: "Update #{source_pod_name} to version #{build_version}"
     )
 
     unless UI.confirm("Shall I continue by publishing the private cocoapod #{spec_name}?")
