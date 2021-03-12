@@ -49,7 +49,7 @@ platform :ios do
     source_git_tag = source_git_tag_format.sub('{latest_version}', latest_version)
     sh("git clone --depth 1 --branch #{source_git_tag} #{source_git_source} #{root_path}/#{module_name}")
 
-    # remove gif files
+    # remove git files
     sh("rm -rf #{root_path}/#{module_name}/.git*")
 
     xcframework_command = 'xcodebuild -create-xcframework'
@@ -121,7 +121,7 @@ platform :ios do
       upload_assets: ["#{root_path}/archives/#{xcframework_name}.zip"]
     )
 
-    unless UI.confirm("Shall I continue by publixhing the private cocoapod #{spec_name}?")
+    unless UI.confirm("Shall I continue by publishing the private cocoapod #{spec_name}?")
       UI.abort_with_message! "Canceling build"
     end
 
