@@ -1,7 +1,10 @@
 Pod::Spec.new do |s|
   s.cocoapods_version = '>= 1.10.0'
   s.name                = 'KeychainAccess-xcframework'
+  
+  s.module_name         = 'KeychainAccess'
   s.version             = '4.2.1'
+
   s.summary             = 'KeychainAccess is a simple Swift wrapper for Keychain that works on iOS and OS X.'
   s.description         = <<-DESC
                           xcframework for KeychainAccess from https://github.com/kishikawakatsumi/KeychainAccess
