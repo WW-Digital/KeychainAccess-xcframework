@@ -72,7 +72,7 @@ platform :ios do
       case platform
       when 'ios' then ['iOS', 'iOS Simulator']
       when 'watchos' then ['watchOS', 'watchOS Simulator']
-      when 'tvos' then ['tvOS', 'tvOS Simulator']
+      when 'tvos' then ['tvOS']
       when 'osx' then ['OS X']
       else []
       end
