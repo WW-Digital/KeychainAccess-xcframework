@@ -145,13 +145,15 @@ platform :ios do
       description: "Updates #{source_pod_name} xcframework to version #{build_version}.",
       upload_assets: ["#{root_path}/archives/#{xcframework_name}.zip"]
     )
-
-    pull_request(
-      launch_url: 'true',
-      base: 'main',
-      message: "Update #{source_pod_name} to version #{build_version}",
-      body: "Update #{source_pod_name} to version #{build_version}"
-    )
+    
+    if UI.confirm("Shall I open a pull request for the release?")
+      pull_request(
+        launch_url: 'true',
+        base: 'main',
+        message: "Update #{source_pod_name} to version #{build_version}",
+        body: "Update #{source_pod_name} to version #{build_version}"
+      )
+    end
 
     unless UI.confirm("Shall I continue by publishing the private cocoapod #{spec_name}?")
       UI.abort_with_message! "Canceling build"
