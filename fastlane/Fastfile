@@ -57,14 +57,14 @@ platform :ios do
     new_podspec = read_podspec(path: "#{root_path}/#{module_name}/#{source_podspec_file}")
     new_platforms = new_podspec['platforms']
     old_platforms = podspec['platforms']
-    unless new_platforms.keys == old_platforms.keys
-      UI.error "Supported platforms differ (old: #{old_platforms.keys}, new: #{new_platforms.keys}"
-      UI.abort_with_message! "Update the root #{spec_name}.podspec to match the new values first"
-    end
+    # unless new_platforms.keys == old_platforms.keys
+    #   UI.error "Supported platforms differ (old: #{old_platforms.keys}, new: #{new_platforms.keys}"
+    #   UI.abort_with_message! "Update the root #{spec_name}.podspec to match the new values first"
+    # end
 
-    new_platforms.each { |platform, deployment_version|
-      unless deployment_version == old_platforms[platform]
-        UI.error "Deployment version changed for #{platform} (old: #{old_platforms[platform]}, new: #{deployment_version})"
+    old_platforms.each { |platform, deployment_version|
+      unless deployment_version == new_platforms[platform]
+        UI.error "Deployment version changed for #{platform} (old: #{deployment_version}, new: #{old_platforms[platform]})"
         UI.abort_with_message! "Update the root #{spec_name}.podspec to match the new values first"
       end
     }
