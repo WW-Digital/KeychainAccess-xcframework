@@ -68,11 +68,11 @@ platform :ios do
         UI.abort_with_message! "Update the root #{spec_name}.podspec to match the new values first"
       end
     }
-    platforms = new_platforms.keys.map { |platform|
+    platforms = old_platforms.keys.map { |platform|
       case platform
       when 'ios' then ['iOS', 'iOS Simulator']
       when 'watchos' then ['watchOS', 'watchOS Simulator']
-      when 'tvos' then ['tvOS']
+      when 'tvos' then ['tvOS', 'tvOS Simulator']
       when 'osx' then ['OS X']
       else []
       end
