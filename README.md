@@ -55,3 +55,81 @@ Swift:
 import KeychainAccess
 ```
 
+
+
+## TODO
+
+- Fix inclusion of tvOS
+- Add debug symbols to final xcframework
+- Separate fastlane config into own file, then can move the lane into the MobileFastFile
+- Create nightly task to chek latest published version of 3rd party library
+- Make it work with SPM
+
+
+
+## Notes
+
+Manual build of xcframework, assumes directory structure:
+
+📂 KeychainAccess-xcframework <- this repo
+   📂 KeychainAccess <- clone of 3rd party repo
+   📂 archives <- destination of intermediate frameworks
+   📄 KeychainAccess-xcframework.podspec
+
+
+
+```bash
+xcodebuild archive \
+  -project KeychainAccess/Lib/KeychainAccess.xcodeproj \
+  -scheme 'KeychainAccess' \
+  -configuration Release \
+  -destination 'generic/platform=iOS' \
+  -archivePath 'archives/KeychainAccess-iOS' \
+  SKIP_INSTALL=NO \
+  BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+
+xcodebuild archive \
+  -project KeychainAccess/Lib/KeychainAccess.xcodeproj \
+  -scheme 'KeychainAccess' \
+  -configuration Release \
+  -destination 'generic/platform=iOS Simulator' \
+  -archivePath 'archives/KeychainAccess-iOSSimulator' \
+  SKIP_INSTALL=NO \
+  BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+
+xcodebuild archive \
+  -project KeychainAccess/Lib/KeychainAccess.xcodeproj \
+  -scheme 'KeychainAccess' \
+  -configuration Release \
+  -destination 'generic/platform=watchOS' \
+  -archivePath 'archives/KeychainAccess-watchOS' \
+  SKIP_INSTALL=NO \
+  BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+
+xcodebuild archive \
+  -project KeychainAccess/Lib/KeychainAccess.xcodeproj \
+  -scheme 'KeychainAccess' \
+  -configuration Release \
+  -destination 'generic/platform=watchOS Simulator' \
+  -archivePath 'archives/KeychainAccess-watchOSSimulator' \
+  SKIP_INSTALL=NO \
+  BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+
+xcodebuild archive \
+  -project KeychainAccess/Lib/KeychainAccess.xcodeproj \
+  -scheme 'KeychainAccess' \
+  -configuration Release \
+  -destination 'generic/platform=OS X' \
+  -archivePath 'archives/KeychainAccess-macOS' \
+  SKIP_INSTALL=NO \
+  BUILD_LIBRARY_FOR_DISTRIBUTION=YES
+
+xcodebuild -create-xcframework \
+  -framework archives/KeychainAccess-iOS.xcarchive/Products/Library/Frameworks/KeychainAccess.framework \
+  -framework archives/KeychainAccess-iOSSimulator.xcarchive/Products/Library/Frameworks/KeychainAccess.framework \
+  -framework archives/KeychainAccess-watchOS.xcarchive/Products/Library/Frameworks/KeychainAccess.framework \
+  -framework archives/KeychainAccess-watchOSSimulator.xcarchive/Products/Library/Frameworks/KeychainAccess.framework \
+  -framework archives/KeychainAccess-macOS.xcarchive/Products/Library/Frameworks/KeychainAccess.framework \
+  -output KeychainAccess.xcframework
+```
+
