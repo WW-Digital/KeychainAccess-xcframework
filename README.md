@@ -71,10 +71,10 @@ import KeychainAccess
 
 Manual build of xcframework, assumes directory structure:
 
-📂 KeychainAccess-xcframework <- this repo
-   📂 KeychainAccess <- clone of 3rd party repo
-   📂 archives <- destination of intermediate frameworks
-   📄 KeychainAccess-xcframework.podspec
+- 📂 *KeychainAccess-xcframework* <- this repo
+  - 📂 *KeychainAccess* <- clone of 3rd party repo
+  - 📂 *archives* <- destination of intermediate frameworks
+  - 📄 *KeychainAccess-xcframework.podspec*
 
 
 
