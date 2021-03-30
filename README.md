@@ -13,24 +13,31 @@ KeychainAccess is here: https://github.com/kishikawakatsumi/KeychainAccess
 
 This repo clones the source and builds an xcframework for it.
 
+### Checking for a new version
+
+```bash
+$ fastlane check_xcframework_version
+```
+
+If a new version of the source library is available, a new Issue will be created in this repo, and a notice will be posted to `#ios-team`.
+
+This is intedned to be run as a daily task.
 
 
 ### Updating to a new version
 
 ```bash
-$ fastlane update_framework
+$ fastlane update_xcframework
 ```
 
-The file `KeychainAccess-xcframework.podspec` is used to control how the xcframework is put together.  The `update_framework` lane will only build the platforms listed there, rather than the ones listed in the source `KeychainAccess.podspec` file.  The lane _will_ run a check to make sure that the deployment versions match.
+The file `KeychainAccess-xcframework.podspec` is used to control how the xcframework is put together.  The `update_xcframework` lane will only build the platforms listed there, rather than the ones listed in the source `KeychainAccess.podspec` file.  The lane _will_ run a check to make sure that the deployment versions match.
 
-`fastlane update_framework` will:
+`fastlane update_xcframework` will:
 
 - update the local copy of the source repo with the latest published version
 - re-build the xcframework
 - You can then optionally continue to 
-
   - create a new local branch
-
   - commit the changes to the new release branch
   - create the tag
 - With another optional step of publishing the CocoaPod.
@@ -59,9 +66,7 @@ import KeychainAccess
 
 ## TODO
 
-- Fix inclusion of tvOS
-- Add debug symbols to final xcframework
-- Separate fastlane config into own file, then can move the lane into the MobileFastFile
+- Fix inclusion of tvOS (low priority)
 - Create nightly task to chek latest published version of 3rd party library
 - Make it work with SPM
 
