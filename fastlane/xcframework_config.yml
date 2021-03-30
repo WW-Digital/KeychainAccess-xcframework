@@ -1,0 +1,25 @@
+
+# Name of the 3rd party pod, as used by CocoaPods
+source_pod_name: 'KeychainAccess'
+
+# Git repo of source library
+source_git_source: 'https://github.com/kishikawakatsumi/KeychainAccess.git'
+
+# Template to make the source repos tag name from the CocoaPods version number
+source_git_tag_format: 'v{build_version}'
+
+# Path of source podspec, relative to the root of the 3rd party repo
+source_podspec_file: 'KeychainAccess.podspec'
+
+# Should the xcframework include debug symbols (dSYMs)? true/false (default: false)
+#debug_symbols: true
+
+# Path of the source xcode project, relative to the root of the 3rd party repo
+project_file: 'Lib/KeychainAccess.xcodeproj'
+
+# Scheme names for the various platforms (platforms are: ios, watchos, tvos, and osx)
+project_scheme:
+  ios: 'KeychainAccess'
+  watchos: 'KeychainAccess'
+  tvos: 'KeychainAccess'
+  osx: 'KeychainAccess'

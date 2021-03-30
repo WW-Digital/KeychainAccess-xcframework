@@ -193,6 +193,40 @@ Get name of current github repository (e.g., ios-wwmobile)
 fastlane ios shared_sandbox
 ```
 Shared sandbox to test new lanes
+### ios check_xcframework_version
+```
+fastlane ios check_xcframework_version
+```
+Checks for new versions of a 3rd party library.
+
+For use in repos that build an xcframework.
+### ios update_xcframework
+```
+fastlane ios update_xcframework
+```
+Builds an xcframework for a 3rd party library.
+
+xcframework_config.yml must be in the xcframework repo, at /fastlane/xcframework_config.yml.
+
+Options:
+
+  version - (optional) Explicit version to archive.  Defaults to latest.
+
+  debug_symbols - (optional) If config file has dSYMs off, use this to temporarily turn them on.  Defaults to config file or false.
+
+Sample usage:
+
+  fastlane update_xcframework
+
+    (generate xcframework for latest version)
+
+  fastlane update_xcframework version:1.2.3
+
+    (generate xcframework for version 1.2.3)
+
+  fastlane update_xcframework debug_symbols:true
+
+    (generate xcframework with debug symbols)
 ### ios loggly_errors
 ```
 fastlane ios loggly_errors
@@ -303,11 +337,6 @@ Post UI test report URL to Slack
 fastlane ios report_url
 ```
 Get matching report URL from CircleCI build artifacts
-### ios match_enterprise
-```
-fastlane ios match_enterprise
-```
-Install Enterprise provisioning profiles
 ### ios register_adhoc_device
 ```
 fastlane ios register_adhoc_device
@@ -318,6 +347,16 @@ Register device UUID with Apple Developer Portal for adhoc (IAP)
 fastlane ios register_development_device
 ```
 Register device UUID with Apple Developer Portal for development
+### ios match_all
+```
+fastlane ios match_all
+```
+Install all certificates and provisioning profiles - will not re-create them
+### ios match_enterprise
+```
+fastlane ios match_enterprise
+```
+Install Enterprise provisioning profiles
 ### ios add_testflight_user
 ```
 fastlane ios add_testflight_user
@@ -384,11 +423,6 @@ podspec_name - (optional) Name of the podspec (e.g. WWFoundation) Defaults to fi
 fastlane ios ascii
 ```
 Success messages
-### ios update_framework
-```
-fastlane ios update_framework
-```
-
 
 ----
 
