@@ -56,9 +56,6 @@ commands:
 
 jobs:
   check-for-update:
-    # Use shared environment variables from ios-team context
-    context:
-      - ios-team
 
     macos:
       xcode: 12.4.0
@@ -77,7 +74,9 @@ workflows:
   
   commit:
     jobs:
-      - check-for-update
+      - check-for-update:
+          context:
+            - ios-team
 
   nightly:
     triggers:
@@ -88,4 +87,6 @@ workflows:
               only:
                 - main
     jobs:
-      - check-for-update
+      - check-for-update:
+          context:
+            - ios-team
