@@ -43,9 +43,22 @@ commands:
             key: gem-cache-v<< parameters.version >>-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
             paths:
               - ~/vendor/bundle
+    
+    install_secrets:
+      description: "Set up ENV variables, and .env file for cocoapods-keys"
+      steps:
+        - run:
+            name: Clone common script
+            command: git clone git@github.com:WW-Digital/ios-common-config.git ~/ios-common-config
+        - run:
+            name: Retrieve secrets from IDB
+            # fetch-keys.sh <MODULE> <PODFILE_DIRECTORY>
+            command: bash ~/ios-common-config/circleci/fetch-keys.sh WWMobile ~/project/Example
 
 jobs:
   check-for-update:
+    # Use shared environment variables from ios-team context
+    context: ios-team
 
     macos:
       xcode: 12.4.0
@@ -56,6 +69,7 @@ jobs:
       - checkout
       - install_dependencies
       - setup_ruby
+      - install_secrets
       - run: bundle exec fastlane check_xcframework_version
 
 workflows:
