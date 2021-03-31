@@ -56,7 +56,7 @@ jobs:
       - checkout
       - install_dependencies
       - setup_ruby
-      - run: fastlane check_xcframework_version
+      - run: bundle exec fastlane check_xcframework_version
 
 workflows:
   version: 2
@@ -64,7 +64,7 @@ workflows:
   commit:
     jobs:
       - check-for-update
-  
+
   nightly:
     triggers:
       - schedule:
