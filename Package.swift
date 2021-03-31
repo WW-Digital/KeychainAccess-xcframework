@@ -6,7 +6,7 @@ let package = Package(
     platforms: [
         .iOS(.v8),
         .watchOS(.v3),
-        .macOS(.v10_9)
+        .macOS(.v10_10)
     ],
     products: [
         .library(
