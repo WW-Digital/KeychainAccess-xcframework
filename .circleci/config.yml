@@ -61,6 +61,10 @@ jobs:
 workflows:
   version: 2
   
+  commit:
+    jobs:
+      - check-for-update
+  
   nightly:
     triggers:
       - schedule:
