@@ -1,0 +1,73 @@
+# .circleci/config.yml
+version: 2.1
+
+references:
+
+  defaults: &defaults
+
+commands:
+
+    install_dependencies:
+      description: "Installs utilities from Homebrew"
+      steps:
+        - run:
+            # bash and jq needed for IDB
+            name: Install Dependencies from Homebrew
+            command: |
+                HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_CLEANUP=1 brew install bash jq
+
+    setup_ruby:
+      description: "Sets Ruby version and installs all gems, using a cache"
+      parameters:
+        version:
+          type: string
+          default: '2.6'
+      steps:
+        - run:
+            name: Set Ruby version
+            command: echo 'chruby ruby-<< parameters.version >>' >> ~/.bash_profile
+        - restore_cache:
+            keys:
+              - gem-cache-v<< parameters.version >>-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+              - gem-cache-v<< parameters.version >>-{{ arch }}-{{ .Branch }}
+        - run:
+            name: Install bundler
+            command: sudo gem update bundler -f
+        - run:
+            name: Configure bundler
+            command: bundle config set path ~/vendor/bundle
+        - run:
+            name: Install dependencies in Gemfile
+            command: bundle install
+        - save_cache:
+            key: gem-cache-v<< parameters.version >>-{{ arch }}-{{ .Branch }}-{{ checksum "Gemfile.lock" }}
+            paths:
+              - ~/vendor/bundle
+
+jobs:
+  check-for-update:
+
+    macos:
+      xcode: 12.4.0
+
+    shell: /bin/bash --login -o pipefail
+
+    steps:
+      - checkout
+      - install_dependencies
+      - setup_ruby
+      - run: fastlane check_xcframework_version
+
+workflows:
+  version: 2
+  
+  nightly:
+    triggers:
+      - schedule:
+          cron: "0 23 * * *"
+          filters:
+            branches:
+              only:
+                - main
+    jobs:
+      - check-for-update
