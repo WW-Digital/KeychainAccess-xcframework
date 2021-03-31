@@ -1,5 +1,5 @@
 source "https://rubygems.org"
 
 gem 'cocoapods', '>= 1.10.0'
-gem "fastlane"
-
+gem 'fastlane', '>= 2.178.0'
+gem 'osx_keychain'
