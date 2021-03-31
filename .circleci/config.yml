@@ -52,7 +52,9 @@ commands:
             command: git clone git@github.com:WW-Digital/ios-common-config.git ~/ios-common-config
         - run:
             name: Retrieve secrets from IDB
-            command: bash ~/ios-common-config/circleci/fetch-keys.sh WWMobile ~/project/Example
+            command: |
+              mkdir ~/project/Example
+              bash ~/ios-common-config/circleci/fetch-keys.sh WWMobile ~/project/Example
 
 jobs:
   check-for-update:
