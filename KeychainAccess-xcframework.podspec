@@ -13,7 +13,11 @@ Pod::Spec.new do |s|
   s.license             = 'MIT'
   s.author              = { 'kishikawa katsumi' => 'kishikawakatsumi@mac.com' }
 
-  s.source              = { :git => 'git@github.com:WW-Digital/ios-KeychainAccess.git', :tag => "#{s.version}" }
+  # s.source              = { :git => 'git@github.com:WW-Digital/ios-KeychainAccess.git', :tag => "#{s.version}" }
+  s.source              = {
+                            :http => 'https://github.com/WW-Digital/ios-KeychainAccess/releases/download/4.2.1/KeychainAccess.xcframework.zip',
+                            :sha256 => "2e1505dde90b669058dea6d8ece62d83e50fe51faeaa7f9dd21398a817061b86"
+                          }
 
   s.requires_arc        = true
   
