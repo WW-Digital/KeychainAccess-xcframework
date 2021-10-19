@@ -1,0 +1,6 @@
+steps:
+  - label: ":mag_right: Check framework version"
+    commands: |
+      source scripts/fetch_keys.sh
+      bash scripts/install_dependencies.sh
+      bundle exec fastlane check_xcframework_version
