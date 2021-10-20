@@ -3,4 +3,5 @@ steps:
     commands: |
       source scripts/fetch_keys.sh
       bash scripts/install_dependencies.sh
+      echo "--- :mag_right: Check framework version"
       bundle exec fastlane check_xcframework_version
